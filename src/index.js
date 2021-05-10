@@ -1,4 +1,4 @@
-const { request } = require('express');
+const { request, response } = require('express');
 const express = require('express');
 const {v4: uuidv4} = require('uuid');
 
@@ -15,6 +15,21 @@ app.get('/account', (request, response) => {
     response.status(201).json(customers);
 })
 
+app.get('/statement', (request, response) => {
+    const { ssn } = request.query;
+    const customerExists = customers.find(customer => customer.ssn === ssn);
+    if (customerExists) {
+        return response.status(201).json({
+            Customer: customerExists.name,
+            Statement: customerExists.statement
+        })
+    };
+
+    return response.status(400).json({
+        Error: `Could not find a customer with SSN: ${ssn}`
+    })
+})
+
 app.post('/account', (request, response) => {
     	
     const { ssn, name } = request.body;
@@ -25,7 +40,7 @@ app.post('/account', (request, response) => {
             Error: `Customer with SSN ${ssn} already exists`
         })
     };
-    
+
     const accountDetails = {
         name,
         ssn,
