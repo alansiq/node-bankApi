@@ -140,6 +140,16 @@ app.post('/withdraw', verifyIfSSNExists, (request, response) => {
     })
 })
 
+app.delete('/account', verifyIfSSNExists, (request, response) => {
+    const { customer } = request;
+    customers.splice(customer);
+
+    return response.status(201).json({
+        message: "User deleted succesfully",
+        customers,
+    })
+})
+
 app.listen(3333, () => {
     console.log('App is running on PORT 3333!');
 });
