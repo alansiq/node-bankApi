@@ -35,8 +35,13 @@ app.get('/', (request, response) => {
     response.json({Message: "Rocketseat's FinApi #01!"});
 });
 
-app.get('/account', (request, response) => {
+app.get('/accounts', (request, response) => {
     response.status(201).json(customers);
+})
+
+app.get('/account', verifyIfSSNExists, (request, response) => {
+    const { customer } = request;
+    return response.status(201).json(customer);
 })
 
 app.get('/statement', verifyIfSSNExists, (request, response) => {
