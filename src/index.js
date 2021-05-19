@@ -7,6 +7,19 @@ app.use(express.json());
 
 const customers = [];
 
+function verifyIfSSNExists(request, response, next) {
+    
+    const { ssn } = request.headers;
+
+    const customer = customers.find(customer => customer.ssn === ssn);
+    if (!customer) {
+        return response.status(400).json({error: "Customer not found"})
+    }
+
+    request.customer = customer;
+    return next();
+}
+
 app.get('/', (request, response) => {
     response.json({Message: "Rocketseat's FinApi #01!"});
 });
@@ -15,32 +28,23 @@ app.get('/account', (request, response) => {
     response.status(201).json(customers);
 })
 
-app.get('/statement', (request, response) => {
-    const { ssn } = request.query;
-    const customerExists = customers.find(customer => customer.ssn === ssn);
-    if (customerExists) {
-        return response.status(201).json({
-            Customer: customerExists.name,
-            Statement: customerExists.statement
-        })
-    };
-
-    return response.status(400).json({
-        Error: `Could not find a customer with SSN: ${ssn}`
+app.get('/statement', verifyIfSSNExists, (request, response) => {
+    
+    const {customer} = request;
+    response.status(201).json({
+        customerName: customer.name,
+        customerStatement: customer.statement
     })
 })
 
 app.post('/account', (request, response) => {
     	
-    const { ssn, name } = request.body;
-    const customerAlreadyExists = customers.some(customer => customer.ssn === ssn);
-
-    if (customerAlreadyExists) {
-        return response.status(400).json({
-            Error: `Customer with SSN ${ssn} already exists`
-        })
-    };
-
+    const { ssn, name } = request.headers;
+    const isSsnDuplicate = customers.some(c => c.ssn === ssn)     
+    
+    if (isSsnDuplicate) {
+        return response.status(400).json({error: "User account with same SSN already exists"})
+    }
     const accountDetails = {
         name,
         ssn,
@@ -51,6 +55,25 @@ app.post('/account', (request, response) => {
     customers.push(accountDetails);
     response.status(201).json(accountDetails);
 
+})
+
+app.post('/deposit', verifyIfSSNExists, (request, response) => {
+    const {amount, description} = request.body;
+    const { customer } = request;
+
+    const newStatementOperation = {
+        description,
+        amount,
+        created_at: new Date(),
+        type: "credit"
+    }
+
+    customer.statement.push(newStatementOperation);
+
+    response.status(201).json({
+        Message: "New deposit created",
+        Details: newStatementOperation
+    })
 })
 
 
