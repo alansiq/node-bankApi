@@ -49,6 +49,19 @@ app.get('/statement', verifyIfSSNExists, (request, response) => {
     })
 })
 
+app.get("/statement/date", verifyIfSSNExists, (request, response) => {
+    const { customer } = request;
+    const { date } = request.query;
+
+    const dateFormat = new Date(date + " 00:00");
+
+    const statement = customer.statement.filter(statement => statement.created_at.toDateString() === new Date(dateFormat).toDateString());
+
+    console.log(statement);
+
+    return response.status(201).json(statement);
+})
+
 app.post('/account', (request, response) => {
     	
     const { ssn, name } = request.headers;

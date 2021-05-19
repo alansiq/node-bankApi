@@ -17,4 +17,4 @@ Part of Rocketseat's introductory course to NodeJs. The goal is to develop a sim
 - [X] Should not be able to get a bank statement from a non-existant account.
 - [X] Should not be able to withdraw from a non-existant account.
 - [ ] Should not be able to delete a non-existant account.
-- [X] Should not be able to withdraw if there's not enough money in the account.
+- [X] Should not be able to withdraw if there's not enough money in the account. 
