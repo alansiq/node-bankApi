@@ -1,4 +1,3 @@
-const { request, response } = require('express');
 const express = require('express');
 const {v4: uuidv4} = require('uuid');
 
@@ -82,6 +81,17 @@ app.post('/account', (request, response) => {
 
 })
 
+app.put('/account', verifyIfSSNExists, (request, response) => {
+    const { customer } = request;
+    const { name } = request.body;
+
+    customer.name = name;
+    return response.status(201).json({
+        message: 'succesful',
+        updatedInfo: customer,
+    })
+})
+
 app.post('/deposit', verifyIfSSNExists, (request, response) => {
     const {amount, description} = request.body;
     const { customer } = request;
@@ -124,12 +134,6 @@ app.post('/withdraw', verifyIfSSNExists, (request, response) => {
         Details: newStatementOperation
     })
 })
-
-
-
-
-
-
 
 app.listen(3333, () => {
     console.log('App is running on PORT 3333!');
